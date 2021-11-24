@@ -1,0 +1,12 @@
+import pandas as pd
+va = pd.read_csv("VA_ACB_pricelist_oct12.csv")
+q4 = pd.read_csv("q4_2021_price_list_october.csv").drop(columns = ["Unnamed: 4", "New Product", "VA Product"])
+total = va.set_index("Code").join(q4.set_index("Code"), lsuffix="_x", rsuffix="_y")
+total.dropna(subset=["Size_y", "Proof_y", "Price_y"], inplace=True)
+(total["Size_x"] == total["Size_y"]).all()
+(total["Proof_x"] == total["Proof_y"]).all()
+(total["Price_x"] == total["Price_y"]).all()
+priceGap = total[total["Brand"] != total["Item Name"]]
+all_good = True
+total["Price_x"] = total["Price_x"].str[1:]
+total["perc_changes"] = (total["Price_x"].astype(float) - total["Price_y"].astype(float)) / 100
